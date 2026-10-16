@@ -6,14 +6,18 @@ using UnityEngine.Serialization;
 public class InputHandler : Singleton<InputHandler>
 {
     [Header("Action References")] 
+    // Movement
     [SerializeField] private InputActionReference LookInput;
     [SerializeField] private InputActionReference MoveInput;
     [SerializeField] private InputActionReference JumpInput;
     [SerializeField] private InputActionReference DashInput;
     [SerializeField] private InputActionReference SlideInput;
     
+    // Combat
+    [SerializeField] private InputActionReference AttackInput;
+    
     public event Action<Vector2, bool> OnLookInputChanged;
-    public event Action<bool> OnLeftClickInput;
+    public event Action OnAttackInput;
     
     public Vector2 moveInput { get; private set; }
     public bool JumpPressed { get; private set; }
@@ -28,21 +32,25 @@ public class InputHandler : Singleton<InputHandler>
         JumpInput.action.Enable();
         DashInput.action.Enable();
         SlideInput.action.Enable();
+        AttackInput.action.Enable();
 
         LookInput.action.performed += HandleLookInput;
         LookInput.action.canceled += HandleLookInput;
+        AttackInput.action.performed += HandleAttackInput;
     }
 
     private void OnDisable()
     {
         LookInput.action.performed -= HandleLookInput;
         LookInput.action.canceled -= HandleLookInput;
+        AttackInput.action.performed -= HandleAttackInput;
 
         LookInput.action.Disable();
         MoveInput.action.Disable();
         JumpInput.action.Disable();
         DashInput.action.Disable();
         SlideInput.action.Disable();
+        AttackInput.action.Disable();
     }
 
     private void Update()
@@ -60,5 +68,13 @@ public class InputHandler : Singleton<InputHandler>
     private void HandleLookInput(InputAction.CallbackContext context)
     {
         OnLookInputChanged?.Invoke(context.ReadValue<Vector2>(), context.control.device is Gamepad);
+    }
+    
+    private void HandleAttackInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnAttackInput?.Invoke();
+        }
     }
 }

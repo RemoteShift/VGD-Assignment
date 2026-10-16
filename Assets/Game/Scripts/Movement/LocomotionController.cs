@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody), typeof(GroundCheck))]
 public class LocomotionController : Singleton<LocomotionController>
