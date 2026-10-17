@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class InputHandler : Singleton<InputHandler>
 {
@@ -15,9 +14,14 @@ public class InputHandler : Singleton<InputHandler>
     
     // Combat
     [SerializeField] private InputActionReference AttackInput;
+    [SerializeField] private InputActionReference HeavyAttackInput;
     
     public event Action<Vector2, bool> OnLookInputChanged;
     public event Action OnAttackInput;
+    
+    // Heavy attack is a "hold" input, so consumers get the press and the release separately.
+    public event Action OnHeavyAttackStarted;
+    public event Action OnHeavyAttackCanceled;
     
     public Vector2 moveInput { get; private set; }
     public bool JumpPressed { get; private set; }
@@ -37,6 +41,17 @@ public class InputHandler : Singleton<InputHandler>
         LookInput.action.performed += HandleLookInput;
         LookInput.action.canceled += HandleLookInput;
         AttackInput.action.performed += HandleAttackInput;
+
+        if (HeavyAttackInput != null)
+        {
+            HeavyAttackInput.action.Enable();
+            HeavyAttackInput.action.started += HandleHeavyAttackStarted;
+            HeavyAttackInput.action.canceled += HandleHeavyAttackCanceled;
+        }
+        else
+        {
+            Debug.LogWarning("InputHandler: HeavyAttackInput is not assigned, so the heavy attack is disabled.", this);
+        }
     }
 
     private void OnDisable()
@@ -44,6 +59,13 @@ public class InputHandler : Singleton<InputHandler>
         LookInput.action.performed -= HandleLookInput;
         LookInput.action.canceled -= HandleLookInput;
         AttackInput.action.performed -= HandleAttackInput;
+
+        if (HeavyAttackInput != null)
+        {
+            HeavyAttackInput.action.started -= HandleHeavyAttackStarted;
+            HeavyAttackInput.action.canceled -= HandleHeavyAttackCanceled;
+            HeavyAttackInput.action.Disable();
+        }
 
         LookInput.action.Disable();
         MoveInput.action.Disable();
@@ -76,5 +98,15 @@ public class InputHandler : Singleton<InputHandler>
         {
             OnAttackInput?.Invoke();
         }
+    }
+
+    private void HandleHeavyAttackStarted(InputAction.CallbackContext context)
+    {
+        OnHeavyAttackStarted?.Invoke();
+    }
+
+    private void HandleHeavyAttackCanceled(InputAction.CallbackContext context)
+    {
+        OnHeavyAttackCanceled?.Invoke();
     }
 }

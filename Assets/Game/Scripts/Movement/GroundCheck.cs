@@ -64,7 +64,7 @@ public class GroundCheck : MonoBehaviour
             return;
         }
 
-        Vector3 bestNormal = Vector3.up;
+        Vector3 bestNormal = Vector3.zero;
         foreach (Vector3 normal in groundContacts.Values)
         {
             if (normal.y > bestNormal.y)

@@ -1,11 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DashState : PlayerLocomState
 {
+    // How far past the dash's own length we look for enemies to pass through, to cover enemies that move into the path.
+    private const float PassThroughMargin = 3f;
+
     private float _dashTimer;
     private Vector3 _dashDir;
     
     private Vector3 _initialVelocity;
+
+    // Everything already damaged during this dash, so each enemy is hit once per dash.
+    private readonly HashSet<IDamageable> _hitThisDash = new HashSet<IDamageable>();
 
     public DashState(LocomotionController playerLocomotion, Rigidbody rb) 
         : base(playerLocomotion, rb) { }
@@ -17,9 +24,11 @@ public class DashState : PlayerLocomState
         _dashDir = GetMoveDirection();
         _dashTimer = player.dashDuration;
         _initialVelocity = Rb.linearVelocity;
-        
-        // Uncomment next line if you want to disable collisions between player and damageables during dash
-        // Physics.IgnoreLayerCollision(player.gameObject.layer, LayerMask.NameToLayer("Damageable"), true);
+        _hitThisDash.Clear();
+
+        // Dash straight through enemies instead of bouncing off them.
+        var dashDistance = player.dashSpeed * player.dashDuration;
+        player.BeginPassThrough(CombatController.Instance.attackLayer, dashDistance + PassThroughMargin);
     }
 
     public override void Update()
@@ -54,6 +63,9 @@ public class DashState : PlayerLocomState
         // 2. NOW apply the dash velocity for THIS frame
         Rb.linearVelocity = new Vector3(_dashDir.x * player.dashSpeed, 0f, _dashDir.z * player.dashSpeed);
 
+        // 3. Damage anything we're passing through
+        CombatController.Instance.DashStrike(player.PlayerCollider.bounds.center, _hitThisDash);
+
         if (_dashTimer <= 0f)
         {
             player.ReturnToDefaultState();
@@ -63,10 +75,10 @@ public class DashState : PlayerLocomState
     public override void Exit()
     {
         base.Exit();
-        // Zero out velocity so player doesn't keep sliding after hitting wall/ending dash
+        // Restore the horizontal velocity from before the dash.
         Rb.linearVelocity = new Vector3(_initialVelocity.x, 0f, _initialVelocity.z);
-        
-        // Uncomment next line if you want to re-enable collisions between player and damageables after dash
-        // Physics.IgnoreLayerCollision(player.gameObject.layer, LayerMask.NameToLayer("Damageable"), false);
+
+        // Enemy collisions come back once the player has cleared them.
+        player.EndPassThrough();
     }
 }

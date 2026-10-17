@@ -10,6 +10,8 @@ public class GroundedState : PlayerLocomState
     public override void Update()
     {
         base.Update();
+        if (player.CurrentState != this) return;
+
         if (!player.GroundCheck.IsGrounded)
         {
             player.SwitchState(new AirborneState(player, Rb));

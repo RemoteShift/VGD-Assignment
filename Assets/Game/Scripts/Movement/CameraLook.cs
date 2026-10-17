@@ -18,7 +18,6 @@ public class CameraLook : Singleton<CameraLook>
     {
         LockCursor();
         
-        // Pass the action context or device info from your InputHandler
         InputHandler.Instance.OnLookInputChanged += HandleLookInput;
     }
 
@@ -57,7 +56,6 @@ public class CameraLook : Singleton<CameraLook>
             pitchPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
-    // Update your handler signature to accept a device flag (or check InputSystem directly)
     private void HandleLookInput(Vector2 input, bool isGamepad)
     {
         lookInput = input;

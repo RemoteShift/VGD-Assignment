@@ -18,8 +18,8 @@ public class SlideState : PlayerLocomState
     public override void Update()
     {
         base.Update();
-        
-        
+        if (player.CurrentState != this) return;
+
         if(player.input.JumpPressed && player.GroundCheck.IsGrounded)
         {
             if (Camera.main)

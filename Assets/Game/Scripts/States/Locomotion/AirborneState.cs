@@ -4,21 +4,12 @@ public class AirborneState : PlayerLocomState
 {
     public AirborneState(LocomotionController locomotionController, Rigidbody rb) : base(locomotionController, rb) { }
 
-    public override void Enter()
-    {
-        base.Enter();
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
-    }
-
     public override void Update()
     {
         base.Update();
+        if (player.CurrentState != this) return;
 
-        if (player.GroundCheck.IsGrounded)
+        if (player.GroundCheck.IsGrounded && Rb.linearVelocity.y <= 0f)
         {
             player.SwitchState(new GroundedState(player, Rb));
             return;
@@ -33,24 +24,14 @@ public class AirborneState : PlayerLocomState
     
     public override void FixedUpdate()
     {
-        base.FixedUpdate();
-
         Vector3 dir = GetCameraRelativeMoveDirection();
+        Vector3 velocity = Rb.linearVelocity;
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-        if (dir.sqrMagnitude > 0.01f)
-        {
-            // Apply acceleration in normalized direction
-            Rb.AddForce(dir * player.AirAcc, ForceMode.Acceleration);
-        }
-
-        // --- HORIZONTAL SPEED CLAMPING ---
-        Vector3 currentHorizontalVel = new Vector3(Rb.linearVelocity.x, 0f, Rb.linearVelocity.z);
-
-        // If total horizontal speed exceeds maxAirSpeed (diagonally or straight), clamp total magnitude
-        if (currentHorizontalVel.magnitude > player.moveSpeed)
-        {
-            Vector3 clampedVel = currentHorizontalVel.normalized * player.moveSpeed;
-            Rb.linearVelocity = new Vector3(clampedVel.x, Rb.linearVelocity.y, clampedVel.z);
-        }
+        // Preserve launch momentum without letting air steering build unlimited speed.
+        float maxSpeed = Mathf.Max(player.moveSpeed, horizontalVelocity.magnitude);
+        horizontalVelocity += dir * player.AirAcc * Time.fixedDeltaTime;
+        horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, maxSpeed);
+        Rb.linearVelocity = new Vector3(horizontalVelocity.x, velocity.y, horizontalVelocity.z);
     }
 }

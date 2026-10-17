@@ -2,14 +2,11 @@ using UnityEngine;
 
 public class GroundSlamState : PlayerLocomState
 {
-    private float _startTime;
-    
     public GroundSlamState(LocomotionController locomotionController, Rigidbody rb) : base(locomotionController, rb) { }
 
     public override void Enter()
     {
         base.Enter();
-        _startTime = Time.time;
         // Ignores collisions between player and damageables during ground slam
         Physics.IgnoreLayerCollision(player.gameObject.layer, LayerMask.NameToLayer("Damageable"), true);
     }
@@ -17,6 +14,7 @@ public class GroundSlamState : PlayerLocomState
     public override void Update()
     {
         base.Update();
+        if (player.CurrentState != this) return;
         
         if (player.GroundCheck.IsGrounded)
         {

@@ -1,4 +1,5 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -38,8 +39,11 @@ public class LocomotionController : Singleton<LocomotionController>
     [HideInInspector] public UnityEvent OnDashCountChanged;
     private float _dashIncTimer = 0;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        if (Instance != this) return;
+
         _dashCount = maxDashCount;
         _dashIncTimer = dashRecoveryDuration;
     }
@@ -47,6 +51,11 @@ public class LocomotionController : Singleton<LocomotionController>
     private void Start()
     {
         ReturnToDefaultState();
+    }
+
+    private void OnDisable()
+    {
+        RestoreAllPassThrough();
     }
 
     private void Update()
@@ -99,6 +108,7 @@ public class LocomotionController : Singleton<LocomotionController>
 
     public void Jump()
     {
+        GroundCheck.SetGroundedState(false);
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpSpeed, rb.linearVelocity.z);
     }
     
@@ -116,9 +126,10 @@ public class LocomotionController : Singleton<LocomotionController>
         
         transform.position += Vector3.up * 0.15f;
         
-        rb.linearVelocity = Vector3.zero;
-        rb.AddForce(new Vector3(launchDir.x * bulletJumpForce, 
-            Math.Max(Math.Min(launchDir.y * bulletJumpForce, jumpSpeed*2), jumpSpeed), launchDir.z * bulletJumpForce), ForceMode.VelocityChange);
+        rb.linearVelocity = new Vector3(launchDir.x * bulletJumpForce,
+            Mathf.Clamp(launchDir.y * bulletJumpForce, jumpSpeed, jumpSpeed * 2f), launchDir.z * bulletJumpForce);
+        GroundCheck.SetGroundedState(false);
+        SwitchState(new AirborneState(this, rb));
     }
 
     public void Dash()
@@ -151,6 +162,120 @@ public class LocomotionController : Singleton<LocomotionController>
             SwitchState(new AirborneState(this, rb));
         }
     }
+
+    #region Dash Pass-Through
+
+    // Colliders the player is currently ignoring so a dash can carry it straight through enemies.
+    private readonly HashSet<Collider> _passThroughColliders = new HashSet<Collider>();
+    private readonly List<Collider> _passThroughScratch = new List<Collider>();
+    private Coroutine _passThroughRestoreRoutine;
+
+    // Safety net: collisions always come back after this long, even if the player stays overlapped.
+    private const float PassThroughRestoreTimeout = 2f;
+
+    public Collider PlayerCollider => playerCollider;
+
+    /// <summary>
+    /// Makes the player ignore every collider on <paramref name="layers"/> within <paramref name="radius"/>
+    /// until <see cref="EndPassThrough"/> is called.
+    /// </summary>
+    public void BeginPassThrough(LayerMask layers, float radius)
+    {
+        // Back-to-back dashes: keep what's already ignored and just add to it.
+        if (_passThroughRestoreRoutine != null)
+        {
+            StopCoroutine(_passThroughRestoreRoutine);
+            _passThroughRestoreRoutine = null;
+        }
+
+        var found = Physics.OverlapSphere(playerCollider.bounds.center, radius, layers, QueryTriggerInteraction.Ignore);
+        foreach (var other in found)
+        {
+            if (other == playerCollider) continue;
+
+            Physics.IgnoreCollision(playerCollider, other, true);
+            _passThroughColliders.Add(other);
+        }
+    }
+
+    /// <summary>
+    /// Ends the pass-through. Collisions are restored per enemy once the player is no longer overlapping it,
+    /// so finishing a dash inside an enemy doesn't violently shove the player out.
+    /// </summary>
+    public void EndPassThrough()
+    {
+        if (_passThroughColliders.Count == 0) return;
+
+        if (!isActiveAndEnabled)
+        {
+            RestoreAllPassThrough();
+            return;
+        }
+
+        if (_passThroughRestoreRoutine == null)
+            _passThroughRestoreRoutine = StartCoroutine(RestorePassThroughWhenClear());
+    }
+
+    private IEnumerator RestorePassThroughWhenClear()
+    {
+        var wait = new WaitForFixedUpdate();
+        var timeout = PassThroughRestoreTimeout;
+
+        while (_passThroughColliders.Count > 0 && timeout > 0f)
+        {
+            yield return wait;
+            timeout -= Time.fixedDeltaTime;
+
+            _passThroughScratch.Clear();
+            _passThroughScratch.AddRange(_passThroughColliders);
+
+            foreach (var other in _passThroughScratch)
+            {
+                if (other == null)
+                {
+                    _passThroughColliders.Remove(other);
+                    continue;
+                }
+
+                if (IsOverlappingPlayer(other)) continue;
+
+                Physics.IgnoreCollision(playerCollider, other, false);
+                _passThroughColliders.Remove(other);
+            }
+        }
+
+        RestoreAllPassThrough();
+    }
+
+    private bool IsOverlappingPlayer(Collider other)
+    {
+        if (!playerCollider.bounds.Intersects(other.bounds)) return false;
+
+        // ComputePenetration can't handle non-convex mesh colliders, so stay cautious for those.
+        if (other is MeshCollider { convex: false }) return true;
+
+        return Physics.ComputePenetration(
+            playerCollider, playerCollider.transform.position, playerCollider.transform.rotation,
+            other, other.transform.position, other.transform.rotation,
+            out _, out _);
+    }
+
+    private void RestoreAllPassThrough()
+    {
+        if (playerCollider != null)
+        {
+            foreach (var other in _passThroughColliders)
+            {
+                if (other != null)
+                    Physics.IgnoreCollision(playerCollider, other, false);
+            }
+        }
+
+        _passThroughColliders.Clear();
+        _passThroughRestoreRoutine = null;
+    }
+
+    #endregion
 
     #region Height Shrinking (for sliding)
 
