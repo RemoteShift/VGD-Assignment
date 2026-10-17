@@ -27,7 +27,7 @@ public class DashState : PlayerLocomState
         _hitThisDash.Clear();
 
         // Dash straight through enemies instead of bouncing off them.
-        var dashDistance = player.dashSpeed * player.dashDuration;
+        var dashDistance = player.DashSpeed * player.dashDuration;
         player.BeginPassThrough(CombatController.Instance.attackLayer, dashDistance + PassThroughMargin);
     }
 
@@ -51,7 +51,7 @@ public class DashState : PlayerLocomState
             Vector3 actualHorizontalVel = new Vector3(Rb.linearVelocity.x, 0f, Rb.linearVelocity.z);
 
             // If physics reduced our velocity significantly (e.g. hitting a wall), cancel dash!
-            if (actualHorizontalVel.magnitude < player.dashSpeed * 0.5f)
+            if (actualHorizontalVel.magnitude < player.DashSpeed * 0.5f)
             {
                 player.ReturnToDefaultState();
                 return;
@@ -61,7 +61,7 @@ public class DashState : PlayerLocomState
         _dashTimer -= Time.fixedDeltaTime;
 
         // 2. NOW apply the dash velocity for THIS frame
-        Rb.linearVelocity = new Vector3(_dashDir.x * player.dashSpeed, 0f, _dashDir.z * player.dashSpeed);
+        Rb.linearVelocity = new Vector3(_dashDir.x * player.DashSpeed, 0f, _dashDir.z * player.DashSpeed);
 
         // 3. Damage anything we're passing through
         CombatController.Instance.DashStrike(player.PlayerCollider.bounds.center, _hitThisDash);

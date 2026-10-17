@@ -74,6 +74,14 @@ public class CombatController : Singleton<CombatController>
     [Tooltip("Radius around the player that damages enemies while dashing.")]
     [Min(0.1f)] public float dashHitRadius = 1.25f;
 
+    [Header("Ground Slam")]
+    [Min(0.1f)] public float slamRadius = 5f;
+    [Min(0f)] public float slamDamage = 5f;
+    [Tooltip("How far enemies are pushed away from the impact, in world units.")]
+    [Min(0f)] public float slamKnockbackDistance = 3f;
+    [Tooltip("Minimum vertical drop after entering Ground Slam before the landing deals damage and knockback.")]
+    [Min(0f)] public float minimumSlamDistance = 2f;
+
     [Header("Animation")]
     [Tooltip("Blend time into an attack animation. Keep this short so attacks feel snappy.")]
     [Min(0f)] public float attackCrossFade = 0.05f;
@@ -130,6 +138,7 @@ public class CombatController : Singleton<CombatController>
             _input.OnHeavyAttackCanceled -= HeavyAttackCanceled;
         }
 
+        if (_attackRoutine != null) StopCoroutine(_attackRoutine);
         _attacking = false;
         _attackRoutine = null;
         _heavyHeld = false;
@@ -148,7 +157,7 @@ public class CombatController : Singleton<CombatController>
 
     private void LightAttackPressed()
     {
-        if (_attacking) return;
+        if (_attacking || !LocomotionController.Instance.canMove || Time.timeScale <= 0f) return;
 
         var animState = _lightComboIndex == 0 ? ATTACK1 : ATTACK2;
         _lightComboIndex = 1 - _lightComboIndex;
@@ -174,6 +183,7 @@ public class CombatController : Singleton<CombatController>
     private void TickHeavyHold()
     {
         if (!_heavyHeld || _heavyFired) return;
+        if (!LocomotionController.Instance.canMove || Time.timeScale <= 0f) return;
 
         _heavyHeldTime += Time.deltaTime;
         if (_heavyHeldTime < heavyHoldTime || _attacking) return;
@@ -188,6 +198,8 @@ public class CombatController : Singleton<CombatController>
 
     private void StartAttack(AttackSettings settings, string animState)
     {
+        var vitals = LocomotionController.Instance.Vitals;
+        if (vitals) vitals.AddExertion(animState == HEAVY_ATTACK ? vitals.heavyAttackExertion : vitals.lightAttackExertion);
         _attacking = true;
         _attackRoutine = StartCoroutine(AttackRoutine(settings, animState));
     }
@@ -277,7 +289,7 @@ public class CombatController : Singleton<CombatController>
     public void DashStrike(Vector3 center, HashSet<IDamageable> alreadyHit)
     {
         // Never let the radius get smaller than the distance travelled per physics step.
-        var radius = Mathf.Max(dashHitRadius, LocomotionController.Instance.dashSpeed * Time.fixedDeltaTime);
+        var radius = Mathf.Max(dashHitRadius, LocomotionController.Instance.DashSpeed * Time.fixedDeltaTime);
 
         var count = Physics.OverlapSphereNonAlloc(center, radius, _overlapHits, attackLayer);
         for (var i = 0; i < count; i++)
@@ -295,6 +307,20 @@ public class CombatController : Singleton<CombatController>
         return true;
     }
 
+    public void GroundSlam(Vector3 origin)
+    {
+        // A slam is infrequent: an allocating query avoids silently dropping crowded targets.
+        var hits = Physics.OverlapSphere(origin, slamRadius, attackLayer, QueryTriggerInteraction.Collide);
+        var hitEnemies = new HashSet<IDamageable>();
+        foreach (var hit in hits)
+        {
+            var enemy = hit.GetComponentInParent<IDamageable>();
+            if (enemy == null || !hitEnemies.Add(enemy)) continue;
+            enemy.KnockbackFrom(origin, slamKnockbackDistance);
+            enemy.TakeDamage(slamDamage);
+        }
+    }
+
     #region Animation
 
     private void ChangeAnimationState(string newState, float fadeTime, bool force = false)
@@ -309,7 +335,7 @@ public class CombatController : Singleton<CombatController>
     {
         if (!_attacking)
         {
-            if (LocomotionController.Instance.CurrentState is SlideState or DashState)
+            if (LocomotionController.Instance.CurrentState is SlideState or DashState or not GroundedState)
             {
                 ChangeAnimationState(IDLE, locomotionCrossFade);
                 return;
@@ -328,6 +354,8 @@ public class CombatController : Singleton<CombatController>
     // Select the player in the editor to see the light (green) and heavy (red) sweep arcs.
     private void OnDrawGizmosSelected()
     {
+        Gizmos.color = new Color(1f, 0.55f, 0.15f);
+        Gizmos.DrawWireSphere(transform.position, slamRadius);
         var cam = Camera.main;
         if (!cam) return;
 

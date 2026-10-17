@@ -13,6 +13,11 @@ public class LocomotionController : Singleton<LocomotionController>
     
     public Rigidbody rb;
     public GroundCheck GroundCheck;
+    public PlayerVitals Vitals { get; private set; }
+    public float MovementSpeedMultiplier => Vitals ? Vitals.MovementSpeedMultiplier : 1f;
+    public float MoveSpeed => moveSpeed * MovementSpeedMultiplier;
+    public float DashSpeed => dashSpeed * MovementSpeedMultiplier;
+    public float SlideSpeed => slideSpeed * MovementSpeedMultiplier;
     
     public InputHandler input => InputHandler.Instance;
 
@@ -43,6 +48,8 @@ public class LocomotionController : Singleton<LocomotionController>
     {
         base.Awake();
         if (Instance != this) return;
+
+        Vitals = GetComponent<PlayerVitals>();
 
         _dashCount = maxDashCount;
         _dashIncTimer = dashRecoveryDuration;
@@ -108,12 +115,14 @@ public class LocomotionController : Singleton<LocomotionController>
 
     public void Jump()
     {
+        if (Vitals) Vitals.AddExertion(Vitals.jumpExertion);
         GroundCheck.SetGroundedState(false);
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpSpeed, rb.linearVelocity.z);
     }
     
     public void BulletJump(Vector3 aimDirection)
     {
+        if (Vitals) Vitals.AddExertion(Vitals.jumpExertion);
         Vector3 launchDir = aimDirection.normalized;
         
         if (launchDir.y < 0.2f)
@@ -138,6 +147,7 @@ public class LocomotionController : Singleton<LocomotionController>
         {
             SwitchState(new DashState(this, rb));
             _dashCount--;
+            if (Vitals) Vitals.AddExertion(Vitals.dashExertion);
             OnDashCountChanged.Invoke();
         }
     }

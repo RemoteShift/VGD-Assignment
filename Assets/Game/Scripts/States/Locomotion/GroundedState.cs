@@ -45,7 +45,7 @@ public class GroundedState : PlayerLocomState
         if (moveDirection.sqrMagnitude > 0.01f)
         {
             moveDirection.Normalize();
-            Rb.linearVelocity = moveDirection * player.moveSpeed + verticalVelocity;
+            Rb.linearVelocity = moveDirection * player.MoveSpeed + verticalVelocity;
         }
         else
         {

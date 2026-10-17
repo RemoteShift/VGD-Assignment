@@ -18956,6 +18956,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Persistents
       objectReference: {fileID: 0}
+    - target: {fileID: 2282175649424686842, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: baseOxygenDrain
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2282175649424686842, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: exertionRecoveryPerSecond
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 3296512880335041129, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
       propertyPath: m_LocalPosition.x
       value: 37.19917
@@ -19000,10 +19008,38 @@ PrefabInstance:
       propertyPath: m_CullingMask.m_Bits
       value: 191
       objectReference: {fileID: 0}
+    - target: {fileID: 3608031464993376485, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 5215747956211400365, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
     - target: {fileID: 6802548791520259483, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
       propertyPath: anim
       value: 
       objectReference: {fileID: 315385075898469423}
+    - target: {fileID: 6802548791520259483, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: slamDamage
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6802548791520259483, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: slamRadius
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6810012405388091008, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 7171199390908636857, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 7185243446253414075, guid: c0e3217d053703444b4fc7d3c2cecd29, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

@@ -29,7 +29,9 @@ public class AirborneState : PlayerLocomState
         Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
         // Preserve launch momentum without letting air steering build unlimited speed.
-        float maxSpeed = Mathf.Max(player.moveSpeed, horizontalVelocity.magnitude);
+        float maxSpeed = player.Vitals && player.Vitals.IsExhausted
+            ? player.MoveSpeed
+            : Mathf.Max(player.MoveSpeed, horizontalVelocity.magnitude);
         horizontalVelocity += dir * player.AirAcc * Time.fixedDeltaTime;
         horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, maxSpeed);
         Rb.linearVelocity = new Vector3(horizontalVelocity.x, velocity.y, horizontalVelocity.z);

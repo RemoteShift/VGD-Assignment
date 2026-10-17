@@ -24,6 +24,8 @@ public class GroundCheck : MonoBehaviour
         }
     }
     
+    private void OnCollisionEnter(Collision collision) => OnCollisionStay(collision);
+
     private void OnCollisionStay(Collision collision)
     {
         Vector3 bestNormal = Vector3.zero;

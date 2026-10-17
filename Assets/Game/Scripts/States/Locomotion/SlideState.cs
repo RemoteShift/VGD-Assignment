@@ -36,16 +36,21 @@ public class SlideState : PlayerLocomState
     {
         base.FixedUpdate();
 
-        Rb.linearVelocity = new Vector3(
-            _slideDir.x * player.slideSpeed,
-            Rb.linearVelocity.y,
-            _slideDir.z * player.slideSpeed
-        );
-
         if (!player.input.IsHoldingSlide)
         {
             player.ReturnToDefaultState();
+            return;
         }
+
+        if (player.Vitals)
+            player.Vitals.AddExertion(player.Vitals.slideExertionPerSecond * Time.fixedDeltaTime);
+
+        Rb.linearVelocity = new Vector3(
+            _slideDir.x * player.SlideSpeed,
+            Rb.linearVelocity.y,
+            _slideDir.z * player.SlideSpeed
+        );
+
     }
 
     public override void Exit()

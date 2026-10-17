@@ -2,40 +2,53 @@ using UnityEngine;
 
 public class GroundSlamState : PlayerLocomState
 {
+    private float startHeight;
     public GroundSlamState(LocomotionController locomotionController, Rigidbody rb) : base(locomotionController, rb) { }
 
     public override void Enter()
     {
-        base.Enter();
-        // Ignores collisions between player and damageables during ground slam
-        Physics.IgnoreLayerCollision(player.gameObject.layer, LayerMask.NameToLayer("Damageable"), true);
+        startHeight = Rb.position.y;
+        IgnoreNearbyEnemies();
     }
 
     public override void Update()
     {
+        if (TryLand()) return;
         base.Update();
-        if (player.CurrentState != this) return;
-        
-        if (player.GroundCheck.IsGrounded)
-        {
-            OnSlamImpact();
-            player.SwitchState(new GroundedState(player, Rb));
-        }
     }
 
     public override void FixedUpdate()
     {
-        base.FixedUpdate();
+        if (TryLand()) return;
+        IgnoreNearbyEnemies();
+        if (player.Vitals)
+            player.Vitals.AddExertion(player.Vitals.slamFallExertionPerSecond * Time.fixedDeltaTime);
         Rb.linearVelocity = new Vector3(0f, -player.slamSpeed, 0f);
     }
 
     public override void Exit()
     {
-        Physics.IgnoreLayerCollision(player.gameObject.layer, LayerMask.NameToLayer("Damageable"), false);
+        player.EndPassThrough();
     }
     
-    private void OnSlamImpact()
+    private bool TryLand()
     {
-        // player.PlaySlamImpactEffects();
+        if (!player.GroundCheck.IsGrounded) return false;
+
+        var bounds = player.PlayerCollider.bounds;
+        var combat = CombatController.Instance;
+        if (startHeight - Rb.position.y >= combat.minimumSlamDistance)
+        {
+            combat.GroundSlam(new Vector3(bounds.center.x, bounds.min.y, bounds.center.z));
+            if (player.Vitals) player.Vitals.AddExertion(player.Vitals.slamImpactExertion);
+        }
+        player.SwitchState(new GroundedState(player, Rb));
+        return true;
+    }
+
+    private void IgnoreNearbyEnemies()
+    {
+        var radius = player.PlayerCollider.bounds.extents.magnitude + player.slamSpeed * Time.fixedDeltaTime + 1f;
+        player.BeginPassThrough(CombatController.Instance.attackLayer, radius);
     }
 }

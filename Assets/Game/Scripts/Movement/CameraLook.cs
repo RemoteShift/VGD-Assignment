@@ -13,19 +13,21 @@ public class CameraLook : Singleton<CameraLook>
     private float pitch;
     private Vector2 lookInput;
     private bool isUsingGamepad;
+    private InputHandler input;
 
     private void OnEnable()
     {
         LockCursor();
         
-        InputHandler.Instance.OnLookInputChanged += HandleLookInput;
+        input = InputHandler.Instance;
+        input.OnLookInputChanged += HandleLookInput;
     }
 
     private void OnDisable()
     {
         UnlockCursor();
         
-        InputHandler.Instance.OnLookInputChanged -= HandleLookInput;
+        if (input) input.OnLookInputChanged -= HandleLookInput;
     }
 
     public void UnlockCursor()

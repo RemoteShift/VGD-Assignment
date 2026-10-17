@@ -27,6 +27,7 @@ public abstract class EnemyBrain : MonoBehaviour, IDamageable
     
     protected virtual void Awake()
     {
+        if (!agent) agent = GetComponent<NavMeshAgent>();
         currentHealth = maxHealth;
     }
 
@@ -140,7 +141,7 @@ public abstract class EnemyBrain : MonoBehaviour, IDamageable
 
         var desiredPosition = transform.position + awayFromOrigin.normalized * distance;
 
-        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+        if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
             if (NavMesh.SamplePosition(desiredPosition, out var navHit, distance, NavMesh.AllAreas))
             {
@@ -164,6 +165,8 @@ public abstract class EnemyBrain : MonoBehaviour, IDamageable
     private IEnumerator BlinkRed()
     {
         var rend = GetComponent<Renderer>();
+        if (!rend) rend = GetComponentInChildren<Renderer>();
+        if (!rend) yield break;
         
         var initColor = rend.material.color;
         rend.material.color = Color.red;
