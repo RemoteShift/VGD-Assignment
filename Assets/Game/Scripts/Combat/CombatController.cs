@@ -157,7 +157,7 @@ public class CombatController : Singleton<CombatController>
 
     private void LightAttackPressed()
     {
-        if (_attacking || !LocomotionController.Instance.canMove || Time.timeScale <= 0f) return;
+        if (_attacking || !LocomotionController.Instance.canMove || LocomotionController.Instance.IsInteracting || Time.timeScale <= 0f) return;
 
         var animState = _lightComboIndex == 0 ? ATTACK1 : ATTACK2;
         _lightComboIndex = 1 - _lightComboIndex;
@@ -183,7 +183,7 @@ public class CombatController : Singleton<CombatController>
     private void TickHeavyHold()
     {
         if (!_heavyHeld || _heavyFired) return;
-        if (!LocomotionController.Instance.canMove || Time.timeScale <= 0f) return;
+        if (!LocomotionController.Instance.canMove || LocomotionController.Instance.IsInteracting || Time.timeScale <= 0f) return;
 
         _heavyHeldTime += Time.deltaTime;
         if (_heavyHeldTime < heavyHoldTime || _attacking) return;
@@ -273,7 +273,7 @@ public class CombatController : Singleton<CombatController>
         if (debugDraw)
             Debug.DrawRay(origin, direction * settings.range, Color.yellow, 0.25f);
 
-        var count = Physics.RaycastNonAlloc(origin, direction, _rayHits, settings.range, attackLayer);
+        var count = Physics.RaycastNonAlloc(origin, direction, _rayHits, settings.range, attackLayer, QueryTriggerInteraction.Collide);
         for (var i = 0; i < count; i++)
             DamageOnce(_rayHits[i].collider, settings.damage, _hitThisSwing);
     }

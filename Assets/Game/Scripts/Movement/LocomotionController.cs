@@ -38,6 +38,7 @@ public class LocomotionController : Singleton<LocomotionController>
     #endregion
 
     public bool canMove;
+    public bool IsInteracting { get; set; }
     
     private int _dashCount = 0;
     public int DashCount => _dashCount;
@@ -67,7 +68,7 @@ public class LocomotionController : Singleton<LocomotionController>
 
     private void Update()
     {
-        if (!canMove) return;
+        if (!canMove || IsInteracting) return;
         
         currentState?.Update();
         if(_dashCount < maxDashCount)
@@ -84,7 +85,7 @@ public class LocomotionController : Singleton<LocomotionController>
 
     private void FixedUpdate()
     {
-        if(canMove)
+        if(canMove && !IsInteracting)
             currentState?.FixedUpdate();
     }
 

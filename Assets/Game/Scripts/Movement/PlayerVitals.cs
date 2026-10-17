@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(LocomotionController))]
-public class PlayerVitals : MonoBehaviour
+public class PlayerVitals : Singleton<PlayerVitals>
 {
     [Header("Oxygen")]
     [Min(1f)] public float maxOxygen = 100f;
@@ -74,9 +74,11 @@ public class PlayerVitals : MonoBehaviour
     private LocomotionController locomotion;
     private float lastExertionTime = float.NegativeInfinity;
     private bool safeScene;
+    private bool restarting;
 
     private void Awake()
     {
+        base.Awake();
         locomotion = GetComponent<LocomotionController>();
         ResetVitals();
     }
@@ -95,7 +97,7 @@ public class PlayerVitals : MonoBehaviour
         safeScene = System.Array.IndexOf(safeScenes, scene.name) >= 0;
     }
 
-    private bool IsActive => simulateVitals && !safeScene && !IsDepleted && locomotion.canMove && Time.timeScale > 0f;
+    private bool IsActive => simulateVitals && !safeScene && !IsDepleted && !restarting && locomotion.canMove && Time.timeScale > 0f;
 
     private void Update()
     {
@@ -113,7 +115,7 @@ public class PlayerVitals : MonoBehaviour
         {
             IsDepleted = true;
             onOxygenDepleted.Invoke();
-            if (restartArenaOnEmpty) StartCoroutine(RestartArena());
+            if (restartArenaOnEmpty) RestartAfterDefeat();
         }
     }
 
@@ -124,7 +126,6 @@ public class PlayerVitals : MonoBehaviour
         lastExertionTime = Time.time;
     }
 
-    // Canisters and spore bulbs can call this when their interactions are implemented.
     public void RestoreOxygen(float amount)
     {
         if (IsDepleted) return;
@@ -137,6 +138,13 @@ public class PlayerVitals : MonoBehaviour
         exertion = Mathf.Clamp(startingExertion, 0f, maxExertion);
         lastExertionTime = float.NegativeInfinity;
         IsDepleted = false;
+    }
+
+    public void RestartAfterDefeat()
+    {
+        if (restarting) return;
+        restarting = true;
+        StartCoroutine(RestartArena());
     }
 
     private IEnumerator RestartArena()

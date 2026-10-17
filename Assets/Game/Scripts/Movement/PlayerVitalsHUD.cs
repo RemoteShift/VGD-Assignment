@@ -6,6 +6,12 @@ using UnityEngine.UI;
 public class PlayerVitalsHUD : MonoBehaviour
 {
     public PlayerVitals vitals;
+    public PlayerHealth health;
+    public PlayerInteraction interaction;
+    public Image healthFill;
+    public TMP_Text healthText;
+    public TMP_Text interactionText;
+    public Color healthColor = new Color(0.35f, 1f, 0.5f);
     public Image oxygenFill;
     [FormerlySerializedAs("enduranceFill")]
     public Image exertionFill;
@@ -24,13 +30,19 @@ public class PlayerVitalsHUD : MonoBehaviour
     private void LateUpdate()
     {
         if (!vitals) return;
+        if (health && healthFill && healthText)
+        {
+            SetBar(healthFill, health.HealthFraction, health.HealthFraction <= 0.25f ? warningColor : healthColor);
+            healthText.SetText("HEALTH   {0:0} / {1:0}", health.Health, health.maxHealth);
+        }
+        if (interactionText) interactionText.text = interaction ? interaction.Prompt : "";
         bool lowOxygen = vitals.OxygenFraction <= lowOxygenThreshold;
         bool highExertion = vitals.ExertionFraction >= highExertionThreshold;
         SetBar(oxygenFill, vitals.OxygenFraction, lowOxygen ? warningColor : oxygenColor);
         SetBar(exertionFill, vitals.ExertionFraction, highExertion ? warningColor : exertionColor);
         oxygenText.SetText("OXYGEN   {0:0} / {1:0}", vitals.Oxygen, vitals.maxOxygen);
         exertionText.SetText("EXERTION   {0:0} / {1:0}", vitals.Exertion, vitals.maxExertion);
-        statusText.text = vitals.IsDepleted ? "OXYGEN EMPTY" : lowOxygen ? "LOW OXYGEN" : highExertion ? "HIGH EXERTION" : "";
+        statusText.text = health && health.IsDead ? "DEFEATED" : vitals.IsDepleted ? "OXYGEN EMPTY" : lowOxygen ? "LOW OXYGEN" : highExertion ? "HIGH EXERTION" : "";
     }
 
     private static void SetBar(Image bar, float fraction, Color color)
