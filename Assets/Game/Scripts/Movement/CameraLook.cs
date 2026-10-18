@@ -8,6 +8,7 @@ public class CameraLook : Singleton<CameraLook>
     [SerializeField] private Transform pitchPivot;
 
     public bool canLook = false;
+    public bool RearViewLocked { get; set; }
 
     private float yaw;
     private float pitch;
@@ -66,7 +67,7 @@ public class CameraLook : Singleton<CameraLook>
 
     private void Update()
     {
-        if (!canLook) return;
+        if (!canLook || RearViewLocked) return;
         
         // Pick sensitivity based on active device
         var currentSensitivity = isUsingGamepad ? controllerLookSensitivity : mouseSensitivity;
