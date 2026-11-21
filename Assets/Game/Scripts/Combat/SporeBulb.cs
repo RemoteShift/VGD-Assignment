@@ -11,8 +11,11 @@ public class SporeBulb : MonoBehaviour, IDamageable
         if (HasBurst || damage <= 0f) return;
         HasBurst = true;
         var player = FindFirstObjectByType<PlayerVitals>();
-        if (player && Vector3.Distance(transform.position, player.transform.position) <= releaseRadius)
+        if (player && !player.IsDepleted && Vector3.Distance(transform.position, player.transform.position) <= releaseRadius)
+        {
             player.RestoreOxygen(oxygenAmount);
+            StoryScene.Active?.Refilled(StoryStateManager.Breath.Bulb);
+        }
         gameObject.SetActive(false);
     }
 

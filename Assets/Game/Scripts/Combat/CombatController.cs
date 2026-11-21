@@ -231,6 +231,7 @@ public class CombatController : Singleton<CombatController>
     {
         var cam = Cam;
         _hitThisSwing.Clear();
+        _ropeHit = false;
 
         var halfArc = settings.arc * 0.5f;
         var previousAngle = -halfArc;
@@ -264,6 +265,8 @@ public class CombatController : Singleton<CombatController>
             CastScanRay(cam, settings, toAngle);
     }
 
+    private bool _ropeHit;
+
     private void CastScanRay(Camera cam, AttackSettings settings, float angle)
     {
         var camTransform = cam.transform;
@@ -275,7 +278,15 @@ public class CombatController : Singleton<CombatController>
 
         var count = Physics.RaycastNonAlloc(origin, direction, _rayHits, settings.range, attackLayer, QueryTriggerInteraction.Collide);
         for (var i = 0; i < count; i++)
-            DamageOnce(_rayHits[i].collider, settings.damage, _hitThisSwing);
+        {
+            var collider = _rayHits[i].collider;
+            if (!_ropeHit && collider.TryGetComponent<BellRope>(out var rope))
+            {
+                _ropeHit = true;
+                rope.Strike();
+            }
+            DamageOnce(collider, settings.damage, _hitThisSwing);
+        }
     }
 
     #endregion

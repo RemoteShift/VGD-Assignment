@@ -15,9 +15,10 @@ public class OxygenCanister : MonoBehaviour
 
     public bool Collect(PlayerVitals player)
     {
-        if (IsConsumed || !player || player.IsDepleted) return false;
+        if (!isActiveAndEnabled || IsConsumed || !player || player.IsDepleted) return false;
         IsConsumed = true;
         player.RestoreOxygen(oxygenAmount);
+        StoryScene.Active?.Refilled(StoryStateManager.Breath.Canister);
         gameObject.SetActive(false);
         return true;
     }

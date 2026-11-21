@@ -13,7 +13,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public float HealthFraction => Mathf.Clamp01(health / Mathf.Max(1f, maxHealth));
     public bool IsDead => health <= 0f;
 
-    private void Awake()
+    protected override void Awake()
     {
         base.Awake();
         ResetHealth();

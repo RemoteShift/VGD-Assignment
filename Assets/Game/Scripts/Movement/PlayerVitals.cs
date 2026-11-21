@@ -76,7 +76,7 @@ public class PlayerVitals : Singleton<PlayerVitals>
     private bool safeScene;
     private bool restarting;
 
-    private void Awake()
+    protected override void Awake()
     {
         base.Awake();
         locomotion = GetComponent<LocomotionController>();
@@ -144,7 +144,9 @@ public class PlayerVitals : Singleton<PlayerVitals>
     {
         if (restarting) return;
         restarting = true;
-        StartCoroutine(RestartArena());
+        if (StoryScene.Active && StoryScene.Active.IsArena)
+            StoryScene.Active.Defeated(IsDepleted);
+        else StartCoroutine(RestartArena());
     }
 
     private IEnumerator RestartArena()

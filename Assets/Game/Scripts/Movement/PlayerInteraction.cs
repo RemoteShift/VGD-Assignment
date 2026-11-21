@@ -9,15 +9,16 @@ public class PlayerInteraction : Singleton<PlayerInteraction>
     public LayerMask interactionLayers = ~0;
     public InputAction interact = new InputAction("Use", InputActionType.Button, "<Keyboard>/e");
     public string Prompt { get; private set; } = "";
-    private LocomotionController player => LocomotionController.Instance;
+    private LocomotionController player;
     private PlayerVitals vitals => PlayerVitals.Instance;
     private PlayerHealth health => PlayerHealth.Instance;
     private OxygenCanister usingCanister;
     private float useTime;
 
-    private void Awake()
+    protected override void Awake()
     {
         base.Awake();
+        player = GetComponent<LocomotionController>();
         if (!view) view = GetComponentInChildren<Camera>();
     }
 
@@ -57,6 +58,13 @@ public class PlayerInteraction : Singleton<PlayerInteraction>
         }
 
         if (player.IsInteracting) CancelUse();
+        var story = StoryScene.Active;
+        if (story && story.AtOpenExit)
+        {
+            Prompt = "[E] RETURN TO THE STAGE";
+            if (interact.WasPressedThisFrame()) story.ReturnToStage();
+            return;
+        }
         Prompt = "";
         if (!view || !Physics.Raycast(view.transform.position, view.transform.forward,
             out var hit, interactionRange, interactionLayers, QueryTriggerInteraction.Ignore)) return;
