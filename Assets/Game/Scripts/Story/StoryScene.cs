@@ -17,6 +17,11 @@ public class StoryScene : MonoBehaviour
     public DialogueManager dialogue;
     public LocomotionController player;
     public EncounterGuard[] guards;
+    public EncounterGuard[] secondWatch, lastWatch;
+    public Transform station;
+    public GameObject carriedClapper, fittedClapper;
+    public Transform valveWheel, bellPivot, portcullis;
+    public ParticleSystem pressureVent;
     public Transform spawn, exit, well, canister, flower, rope;
     public GameObject exitLight;
     public CinemachineCamera cuffsShot, crestShot, crowdShot;
@@ -29,13 +34,23 @@ public class StoryScene : MonoBehaviour
     public bool IsArena => location == Location.Garden || location == Location.Castle;
     public bool PlayingArena => IsArena && !IsLoading && ScreenPanel == Panel.None && player.canMove;
     public bool BellRung { get; private set; }
-    public bool ExitOpen => IsArena && remaining.Count == 0 &&
-        (location == Location.Castle ? BellRung : StoryStateManager.FirstBreath != Breath.None);
-    public bool AtOpenExit => PlayingArena && ExitOpen && Vector3.Distance(player.transform.position, exit.position) <= 3.1f;
+    // Each location has three distinct posts. A cleared post never empties the next one's roster.
+    public enum Beat { Arrival, FirstFight, Station, SecondFight, Approach, LastFight, Bell, Return }
+    public Beat Progress { get; private set; }
+    public bool ExitOpen => Progress == Beat.Return;
+    public bool AtOpenExit => PlayingArena && ExitOpen && Near(exit, 3.1f);
     public int Targets => remaining.Count;
+    public bool HasClapper => location == Location.Castle && Progress >= Beat.SecondFight && Progress <= Beat.Approach;
+    public bool AtStation => PlayingArena && Progress == Beat.Station && Near(station, 3f);
+    public bool AtBellSocket => PlayingArena && location == Location.Castle && Progress == Beat.Approach && Near(rope, 3.1f);
+    public Transform Destination => Progress == Beat.Station ? station : Progress == Beat.Approach ?
+        (location == Location.Garden ? exit : rope) : Progress == Beat.Bell ? rope : Progress == Beat.Return ? exit : null;
     private readonly HashSet<EncounterGuard> remaining = new();
-    private bool engaged;
-    private float nextBreath;
+    public float LastHit { get; private set; } = -10f;
+    public void RegisterHit() => LastHit = Time.time;
+    private bool sawNotice;
+    private float nextBreath, turnWheel, ringTime;
+    private bool Near(Transform point, float range) => Vector3.Distance(player.transform.position, point.position) <= range;
 
     private void Awake() => Active = this;
     private void OnDestroy() { if (Active == this) Active = null; }
@@ -47,11 +62,9 @@ public class StoryScene : MonoBehaviour
         if (IsArena)
         {
             StoryStateManager.Enter(location == Location.Garden ? Chapter.Garden : Chapter.Castle);
-            foreach (var guard in guards)
-            {
-                remaining.Add(guard);
-                guard.gameObject.SetActive(false);
-            }
+            foreach (var squad in new[] { guards, secondWatch, lastWatch })
+                foreach (var guard in squad) guard.gameObject.SetActive(false);
+            if (fittedClapper) fittedClapper.SetActive(false);
             exitLight.SetActive(false);
             player.ResetPositionRotation(spawn.position, Quaternion.identity);
             CameraLook.Instance.ResetRotation(spawn.eulerAngles.y, spawn.eulerAngles.x);
@@ -63,7 +76,7 @@ public class StoryScene : MonoBehaviour
             }
             else
             {
-                Objective = "Reach the well.";
+                StartFight(Beat.FirstFight, guards, "Break the gate watch.");
                 dialogue.Show("castle");
             }
             return;
@@ -80,7 +93,8 @@ public class StoryScene : MonoBehaviour
         var chapter = StoryStateManager.Visit;
         string key = chapter == Chapter.Intro ? "intro" : chapter == Chapter.Finale ? "finale" :
             StoryStateManager.FirstBreath == Breath.Bulb ? "interBulb" : "interCanister";
-        Objective = chapter == Chapter.Finale ? "Listen to the crowd." : "Advance the Stage console.";
+        Objective = chapter == Chapter.Finale ? "Listen for an answer." : chapter == Chapter.Intro ?
+            "Hear the Ringmaster’s terms." : "Hold him to his promise.";
         // Rebind selected shots per visit while retaining the Stage director, host cameras and signal track.
         var director = dialogue.director;
         foreach (var track in ((TimelineAsset)director.playableAsset).GetOutputTracks())
@@ -90,7 +104,7 @@ public class StoryScene : MonoBehaviour
             CinemachineCamera replacement = null;
             if (chapter != Chapter.Intermission && clip.displayName == "Low Camera") replacement = cuffsShot;
             if (chapter == Chapter.Intro && clip.displayName == "High Camera") replacement = crestShot;
-            if (chapter == Chapter.Finale && clip.displayName == "Default") replacement = crowdShot;
+            if (clip.displayName == "Default") replacement = crowdShot;
             if (replacement) director.SetReferenceValue(shot.VirtualCamera.exposedName, replacement);
         }
         director.Play();
@@ -115,11 +129,14 @@ public class StoryScene : MonoBehaviour
             else if (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame) dialogue.Advance();
         }
         if (!PlayingArena) return;
-        if (location == Location.Castle && !engaged && Vector3.Distance(player.transform.position, well.position) < 8f)
+        if (location == Location.Castle && !sawNotice && Progress == Beat.Approach && Near(well, 8f))
         {
             dialogue.Show("notice");
-            Engage();
+            sawNotice = true;
         }
+        if (location == Location.Garden && Progress == Beat.Approach && Near(exit, 11f))
+            StartFight(Beat.LastFight, lastWatch, "Clear the portal watch.");
+        AnimateLandmarks();
         if (player.Vitals.OxygenFraction < .25f && Time.time >= nextBreath)
         {
             dialogue.voice.PlayOneShot(dialogue.book.breath, .8f);
@@ -132,34 +149,101 @@ public class StoryScene : MonoBehaviour
     {
         if (!PlayingArena || !StoryStateManager.RecordRefill(source)) return;
         dialogue.Show(source == Breath.Canister ? "canister" : "bulb");
-        Engage();
+        StartFight(Beat.FirstFight, guards, "Defeat the bottle guards.");
     }
 
-    private void Engage()
+    private void StartFight(Beat beat, EncounterGuard[] squad, string objective)
     {
-        engaged = true;
-        foreach (var guard in remaining) guard.Arm(this, player.transform);
-        Objective = "Defeat the guards.";
+        Progress = beat;
+        Objective = objective;
+        foreach (var guard in squad)
+        {
+            remaining.Add(guard);
+            guard.Arm(this, player.transform);
+        }
     }
 
     public void GuardFell(EncounterGuard guard)
     {
-        if (!remaining.Remove(guard) || remaining.Count != 0) return;
-        if (location == Location.Castle)
+        if (!remaining.Remove(guard) || remaining.Count > 0) return;
+        bool garden = location == Location.Garden;
+        switch (Progress)
         {
-            Objective = "Ring the bell.";
-            dialogue.Show("wait");
+            case Beat.FirstFight:
+                Progress = Beat.Station;
+                Objective = garden ? "Open the air main." : "Take the bell clapper.";
+                dialogue.Show(garden ? "valveReady" : "clapperReady");
+                break;
+            case Beat.SecondFight:
+                Progress = Beat.Approach;
+                Objective = garden ? "Reach the portal arch." : "Refit the bell clapper.";
+                dialogue.Show(garden ? "portalWatch" : "wellRoad");
+                break;
+            case Beat.LastFight:
+                if (garden) OpenExit("portal", "Return to the portal.");
+                else
+                {
+                    Progress = Beat.Bell;
+                    Objective = "Ring the bell.";
+                    dialogue.Show("wait");
+                }
+                break;
         }
-        else OpenExit("portal", "Return to the portal.");
+    }
+
+    // Use and sword remain separate inputs. Neither an early hit nor a second press can skip a post.
+    public void UseLandmark()
+    {
+        if (AtStation)
+        {
+            bool garden = location == Location.Garden;
+            if (garden)
+            {
+                player.Vitals.RestoreOxygen(player.Vitals.maxOxygen);
+                pressureVent.Play();
+                pressureVent.GetComponent<AudioSource>().Play();
+                turnWheel = 240f;
+            }
+            else carriedClapper.SetActive(false);
+            dialogue.voice.PlayOneShot(dialogue.book.clank);
+            dialogue.Show(garden ? "valveUsed" : "clapperTaken");
+            StartFight(Beat.SecondFight, secondWatch, garden ? "Defend the air main." : "Clear the market lane.");
+        }
+        else if (AtBellSocket)
+        {
+            fittedClapper.SetActive(true);
+            dialogue.voice.PlayOneShot(dialogue.book.clank);
+            dialogue.Show("clapperFitted");
+            StartFight(Beat.LastFight, lastWatch, "Hold the village well.");
+        }
+    }
+
+    private void AnimateLandmarks()
+    {
+        // The Castle has a grille on each face of the arch. Both travel on the same hoist.
+        if (portcullis && Progress >= Beat.Approach)
+            portcullis.localPosition = Vector3.MoveTowards(portcullis.localPosition, Vector3.up * 1.6f, 2.6f * Time.deltaTime);
+        if (turnWheel > 0f)
+        {
+            float angle = Mathf.Min(turnWheel, 150 * Time.deltaTime);
+            valveWheel.Rotate(Vector3.forward, angle, Space.Self);
+            turnWheel -= angle;
+        }
+        if (BellRung && ringTime < 3f)
+        {
+            ringTime = Mathf.Min(3f, ringTime + Time.deltaTime);
+            float angle = Mathf.Sin(ringTime * 11) * 22 * Mathf.Exp(-1.4f * ringTime);
+            bellPivot.localRotation = Quaternion.Euler(0, 0, ringTime >= 3f ? 0 : angle);
+        }
     }
 
     public void StrikeBell()
     {
         if (!PlayingArena || BellRung) return;
-        if (remaining.Count != 0)
+        if (Progress != Beat.Bell)
         {
             dialogue.voice.PlayOneShot(dialogue.book.clank);
-            dialogue.Show("early");
+            dialogue.Show(Progress == Beat.LastFight ? "early" : "emptyBell");
             return;
         }
         BellRung = true;
@@ -170,6 +254,7 @@ public class StoryScene : MonoBehaviour
     private void OpenExit(string key, string objective)
     {
         Objective = objective;
+        Progress = Beat.Return;
         exitLight.SetActive(true);
         dialogue.Show(key);
     }

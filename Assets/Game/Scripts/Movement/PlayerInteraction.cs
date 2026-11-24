@@ -59,6 +59,13 @@ public class PlayerInteraction : Singleton<PlayerInteraction>
 
         if (player.IsInteracting) CancelUse();
         var story = StoryScene.Active;
+        if (story && (story.AtStation || story.AtBellSocket))
+        {
+            Prompt = story.AtBellSocket ? "[E] REFIT CLAPPER" : story.location == StoryScene.Location.Garden ?
+                "[E] OPEN AIR MAIN" : "[E] TAKE CLAPPER";
+            if (interact.WasPressedThisFrame()) story.UseLandmark();
+            return;
+        }
         if (story && story.AtOpenExit)
         {
             Prompt = "[E] RETURN TO THE STAGE";

@@ -1,33 +1,48 @@
+using System.Collections;
 using UnityEngine;
 
-// The encounter explicitly arms each placed guard. Crowd figures never enter the target count.
+// Only the current watch is armed. Decorative knights, defeated guards and future watches
+// never inflict damage or report a defeat to the story.
 [RequireComponent(typeof(CharacterController))]
 public class EncounterGuard : MonoBehaviour, IDamageable
 {
-    public Transform model;
+    public Animator animator;
     public AudioSource sound;
     public AudioClip step, impact;
     public int hitPoints = 3;
-    public float speed = 2.5f;
+    public bool captain;
+    public GameObject captainPlume;
+    public float speed = 2.8f;
+    [Range(-1, 1)] public float approachSide;
     private StoryScene encounter;
     private CharacterController motor;
-    private Transform player;
-    private float cooldown, windup, fallSpeed;
-    private bool dead;
+    private PlayerHealth target;
     private Vector3 post;
-    public void Arm(StoryScene owner, Transform target)
+    private float cooldown, windup, fallSpeed, recoil, stride;
+    private string pose;
+    private bool dead;
+
+    public void Arm(StoryScene owner, Transform player)
     {
-        post = transform.position;
         encounter = owner;
-        player = target;
+        target = player.GetComponent<PlayerHealth>();
+        post = transform.position;
+        captainPlume.SetActive(captain);
         gameObject.SetActive(true);
         motor = GetComponent<CharacterController>();
+        Pose("Ready");
+    }
+
+    private void Pose(string state)
+    {
+        if (pose == state) return;
+        pose = state;
+        animator.CrossFadeInFixedTime(state, .10f, 0, 0f);
     }
 
     private void Update()
     {
-        if (!player || dead || !encounter.PlayingArena) return;
-        // If an obstacle or a knockback sends a guard off the island, return it to its post.
+        if (dead || !target || !encounter.PlayingArena) return;
         if (transform.position.y < post.y - 7f)
         {
             motor.enabled = false;
@@ -35,33 +50,41 @@ public class EncounterGuard : MonoBehaviour, IDamageable
             motor.enabled = true;
             fallSpeed = 0;
         }
-        var offset = player.position - transform.position;
-        offset.y = 0;
-        float distance = offset.magnitude;
-        if (distance > .1f) transform.rotation = Quaternion.LookRotation(offset);
+        var offset = target.transform.position - transform.position;
+        var flat = Vector3.ProjectOnPlane(offset, Vector3.up);
+        float distance = flat.magnitude;
         Vector3 walk = Vector3.zero;
         cooldown -= Time.deltaTime;
+        recoil -= Time.deltaTime;
         if (windup > 0)
         {
+            // The blade commits to its heading at windup, giving the player room to sidestep.
             windup -= Time.deltaTime;
-            model.localRotation = Quaternion.Euler(-24, -28, 0);
-            if (windup <= 0)
-            {
-                model.localRotation = Quaternion.Euler(18, 20, 0);
-                if (distance < 2.5f && Mathf.Abs(player.position.y - transform.position.y) < 2.6f)
-                    player.GetComponent<PlayerHealth>().TakeDamage(10);
-                cooldown = 1.2f;
-            }
+            if (windup <= 0 && distance < 2.65f && Mathf.Abs(offset.y) < 2.6f &&
+                Vector3.Dot(transform.forward, flat.normalized) > .26f)
+                target.TakeDamage(captain ? 16 : 10);
         }
-        else
+        else if (recoil <= 0)
         {
-            model.localRotation = Quaternion.Slerp(model.localRotation, Quaternion.identity, Time.deltaTime * 10);
-            if (distance > 1.65f) walk = offset.normalized * speed;
+            if (distance > .1f) transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                Quaternion.LookRotation(flat), 380 * Time.deltaTime);
+            if (distance > 1.8f)
+            {
+                var direction = flat.normalized;
+                var flank = Vector3.Cross(Vector3.up, direction) * approachSide * Mathf.Clamp01((distance - 2f) / 4);
+                walk = (direction + flank).normalized * speed;
+                Pose("Advance");
+                stride -= Time.deltaTime;
+                if (stride <= 0) { sound.PlayOneShot(step, .28f); stride = .4f; }
+            }
             else if (cooldown <= 0)
             {
-                windup = .72f;
-                sound.PlayOneShot(step);
+                Pose("Cut");
+                windup = captain ? .88f : .60f;
+                cooldown = captain ? 2.3f : 1.82f;
+                sound.PlayOneShot(step, .8f);
             }
+            else if (cooldown < .8f) Pose("Ready");
         }
         fallSpeed = motor.isGrounded ? -2 : Mathf.Max(-14, fallSpeed - 18 * Time.deltaTime);
         motor.Move((walk + Vector3.up * fallSpeed) * Time.deltaTime);
@@ -70,19 +93,37 @@ public class EncounterGuard : MonoBehaviour, IDamageable
     public void TakeDamage(float damage)
     {
         if (!encounter || dead || damage <= 0) return;
-        sound.PlayOneShot(impact, .55f);
+        sound.PlayOneShot(impact, .66f);
+        encounter.RegisterHit();
         hitPoints -= Mathf.CeilToInt(damage);
         if (hitPoints <= 0) Die();
-        else model.localRotation = Quaternion.Euler(-14, 0, 12);
+        else Stun();
     }
+
     public void Die()
     {
         if (!encounter || dead) return;
         dead = true;
+        motor.enabled = false;
+        Pose("Fall");
         encounter.GuardFell(this);
+        StartCoroutine(RemoveBody());
+    }
+
+    private IEnumerator RemoveBody()
+    {
+        yield return new WaitForSeconds(2);
         gameObject.SetActive(false);
     }
-    public void Stun() { cooldown = .6f; windup = 0; }
+
+    public void Stun()
+    {
+        windup = 0;
+        recoil = .28f;
+        cooldown = Mathf.Max(cooldown, .65f);
+        Pose("Recoil");
+    }
+
     public void KnockbackFrom(Vector3 origin, float distance)
     {
         if (motor && !dead) motor.Move(Vector3.ProjectOnPlane(transform.position - origin, Vector3.up).normalized * distance);

@@ -15,98 +15,191 @@ MonoBehaviour:
   conversations:
   - key: intro
     lines:
-    - speaker: Swordsman
+    - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: "My cuffs scrape the boards. Beyond the curtain, they\u2019re applauding
-        the sound of my breathing."
-      sound: {fileID: 8300000, guid: 8921f827b228f037cb474a068f5aeee3, type: 3}
+      text: "You took me off Earth in irons. Before you unlock these, tell the people out there what I get if I win."
+      sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
-    - speaker: "Keeper\u2019s notice"
-      portrait: {fileID: 2800000, guid: 5e4b1d8349f970dd39b8839e6773b4be, type: 3}
-      text: "They took our crest, too. Beneath it, the old words: \u201COne stroke
-        when a traveller comes home.\u201D"
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "That cross on the shield\u2026 Dad put that dent in it hauling our bell out of the well. Where did you get it?"
       sound: {fileID: 0}
       shotTime: 3.15
       startsApplause: 0
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Listen closely. You can hear what the next swing will cost him.
+      text: "Two bouts, Tomas. Win them both and I'll put you back beside your village well. You have my word, and a full house for witnesses."
       sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
-      shotTime: 8.1
+      shotTime: 8.05
       startsApplause: 0
-    - speaker: Ringmaster
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "We heard you! Give the man his sword."
+      sound: {fileID: 8300000, guid: 8921f827b228f037cb474a068f5aeee3, type: 3}
+      shotTime: 14.35
+      startsApplause: 0
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Release his cuffs. Lights down. Lower the lift into the Garden.
-      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
-      shotTime: 14.3
+      text: "Open the Garden. Put his air where the back row can see him drink it."
+      sound: {fileID: 0}
+      shotTime: 9.4
       startsApplause: 0
   - key: garden
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Stand in the light and take it. Aim at the canister and press E, or strike
-        a nearby flower with your sword (left click).
+      text: "Stand in the light and take it, Tomas. Hold the bottle up a little so they can see what I'm giving you."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: canister
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Right on cue.
+      text: "Right on cue. Did you hear what a little air did for him? Let's see what he can do with it."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: bulb
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: That flower was scenery.
+      text: "That flower was scenery. Would somebody kindly get the spotlight back on him?"
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: valveReady
+    lines:
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "They're filling those bottles from the pipe. My mask would fit that valve."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: valveUsed
+    lines:
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "He's opened the main tank! You had that much air the whole time?"
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: portalWatch
+    lines:
+    - speaker: "Ringmaster"
+      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
+      text: "Who's paying you lads by the arch? Me, I believe. Kindly shut that gate."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: portal
     lines:
-    - speaker: Ringmaster
-      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Clear the floor. The portal is lit. Back to the Stage.
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "That's one, Tomas! We're keeping count up here."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: interCanister
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: He knows where to stand.
-      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
-      shotTime: 4.9
-      startsApplause: 0
-    - speaker: Ringmaster
-      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: For our next act, a piece of his own world. Bring up the Castle.
+      text: "He knows where to stand. Thank you, Tomas. A little smile next time you take the bottle?"
       sound: {fileID: 0}
-      shotTime: 9.2
+      shotTime: 8.1
+      startsApplause: 0
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "I had to put my thumb over a leak in the neck. You might want to look at it before you give it to the next man."
+      sound: {fileID: 0}
+      shotTime: 5.6
+      startsApplause: 0
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "What did you say was special about his well?"
+      sound: {fileID: 0}
+      shotTime: 14.35
+      startsApplause: 0
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "When Dad came home he'd ring the bell once. It echoed off the houses. We'd knock the rhythm back on the shutters so he knew we were up."
+      sound: {fileID: 0}
+      shotTime: 14.8
+      startsApplause: 0
+    - speaker: "Ringmaster"
+      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
+      text: "How lovely. Shall we take him home, then? Raise the Castle."
+      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
+      shotTime: 9.4
       startsApplause: 0
   - key: interBulb
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Yes, of course the flower was my idea.
-      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
-      shotTime: 4.9
-      startsApplause: 0
-    - speaker: Ringmaster
-      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: For our next act, a piece of his own world. Bring up the Castle.
+      text: "Yes, of course the flower was my idea. Can we get on with the show?"
       sound: {fileID: 0}
-      shotTime: 9.2
+      shotTime: 8.1
+      startsApplause: 0
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "Then why did you send someone down there to pick the rest of them?"
+      sound: {fileID: 0}
+      shotTime: 14.35
+      startsApplause: 0
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "Keep one for the next man. Now, about that well. My dad used to ring the bell there whenever he came home."
+      sound: {fileID: 0}
+      shotTime: 5.6
+      startsApplause: 0
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "And people could hear it in their houses?"
+      sound: {fileID: 0}
+      shotTime: 14.35
+      startsApplause: 0
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "Oh, yes. We'd knock the echoes back on the shutters. He could tell who was home before he got his boots off."
+      sound: {fileID: 0}
+      shotTime: 14.8
+      startsApplause: 0
+    - speaker: "Ringmaster"
+      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
+      text: "I'll have the doors opened. I suspect he's going to like what we've brought up for him."
+      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
+      shotTime: 9.4
       startsApplause: 0
   - key: castle
     lines:
-    - speaker: Swordsman
+    - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: Our towers. Our flags. Even the well. How much of home did they take?
+      text: "You brought the whole square onto your ship. When you said you'd take me home, I thought you meant Earth."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: clapperReady
+    lines:
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "There's Dad's stamp on that iron by the gate. They've taken the clapper out of our bell."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: clapperTaken
+    lines:
+    - speaker: "Ringmaster"
+      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
+      text: "Put that down, please. It makes a dreadful noise under a roof."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: wellRoad
+    lines:
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "Last time I held this, Dad was on the ladder and I could barely reach his boots. Let's see if I remember how it goes."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
@@ -114,60 +207,81 @@ MonoBehaviour:
     lines:
     - speaker: "Keeper\u2019s notice"
       portrait: {fileID: 2800000, guid: 5e4b1d8349f970dd39b8839e6773b4be, type: 3}
-      text: "The same crest as the Stage. \u201COne stroke when a traveller comes
-        home.\u201D"
+      text: "\u201cOne stroke when a traveller comes home.\u201d The lettering is worn smooth where people have run their fingers over it."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: clapperFitted
+    lines:
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "Look at his hands. He knows how to put it back together."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: wait
     lines:
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: Wait for my cue.
+      text: "Wait for my cue, Tomas. I haven't introduced the bell."
+      sound: {fileID: 0}
+      shotTime: 0
+      startsApplause: 0
+  - key: emptyBell
+    lines:
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "All I can hear is the rope against the wood. The bell needs its clapper."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: early
     lines:
-    - speaker: Swordsman
+    - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: A dull clank. The guards still hold the well.
+      text: "There's a catch on the rope. I can't get it loose with his people on top of me."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: home
     lines:
-    - speaker: Swordsman
+    - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: One stroke. For everyone who never made it home.
+      text: "Hear the echo? If my dad were here, he'd be knocking on the shutters already."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
   - key: finale
     lines:
-    - speaker: Swordsman
+    - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: Back under the bare bulb. The broken cuffs lie where I left them.
+      text: "Leave the curtain open a crack, will you? I'd like to hear if anybody answers."
       sound: {fileID: 0}
       shotTime: 0
       startsApplause: 0
-    - speaker: Ringmaster
+    - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: "Ladies and\u2014"
+      text: "Our fighter has returned to his well, exactly as promised. Ladies and\u2014"
       sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
       shotTime: 8.15
       startsApplause: 1
-    - speaker: Lead Spectator
+    - speaker: "Lead Spectator"
       portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
-      text: "Clap. Clap.     Clap.  The bell\u2019s rhythm, from the front row."
+      text: "Like that, Tomas? I had to do it on my hands. We haven't any shutters up here."
       sound: {fileID: 0}
       shotTime: 14.15
       startsApplause: 0
-    - speaker: Audience
-      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
-      text: Clap. Clap.     Clap.  The cane rises for silence. We keep going.
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "Aye. Dad would've heard you from the other end of the street."
       sound: {fileID: 0}
-      shotTime: 16
+      shotTime: 15.8
+      startsApplause: 0
+    - speaker: "Lead Spectator"
+      portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
+      text: "Hang on. Listen to that lot in the cheap seats."
+      sound: {fileID: 0}
+      shotTime: 16.25
       startsApplause: 0
   clank: {fileID: 8300000, guid: be05bb9306c6a42ada3de6f5c779afb9, type: 3}
   bell: {fileID: 8300000, guid: 9b3b6e9ddf7fe36f6b0fd3cf991081e9, type: 3}
