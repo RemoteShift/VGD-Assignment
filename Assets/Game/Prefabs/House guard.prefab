@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5386118779358461739}
-  - component: {fileID: 2989651048736459124}
   - component: {fileID: 5364698536426767207}
   - component: {fileID: 3230389413839013529}
+  - component: {fileID: 9129858001211366027}
+  - component: {fileID: 833004793204168938}
   m_Layer: 7
   m_Name: House guard
   m_TagString: Untagged
@@ -35,31 +36,6 @@ Transform:
   - {fileID: 162843406605053589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &2989651048736459124
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 757251174846182048}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 1.95
-  m_Radius: 0.37
-  m_SlopeLimit: 45
-  m_StepOffset: 0.28
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.98, z: 0}
 --- !u!114 &5364698536426767207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,11 +52,10 @@ MonoBehaviour:
   sound: {fileID: 3230389413839013529}
   step: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
   impact: {fileID: 8300000, guid: be05bb9306c6a42ada3de6f5c779afb9, type: 3}
-  hitPoints: 4
+  hitPoints: 8
   captain: 0
   captainPlume: {fileID: 6122913282120633358}
-  speed: 3.05
-  approachSide: 0
+  speed: 4.7
 --- !u!82 &3230389413839013529
 AudioSource:
   m_ObjectHideFlags: 0
@@ -178,6 +153,51 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!195 &9129858001211366027
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757251174846182048}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.37
+  m_Speed: 4.7
+  m_Acceleration: 32
+  avoidancePriority: 50
+  m_AngularSpeed: 720
+  m_StoppingDistance: 1.3
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.95
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!136 &833004793204168938
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757251174846182048}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.37
+  m_Height: 1.95
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.98, z: 0}
 --- !u!1 &2071688605734591436
 GameObject:
   m_ObjectHideFlags: 0

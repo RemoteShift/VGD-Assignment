@@ -95,6 +95,11 @@ public class StoryScene : MonoBehaviour
             StoryStateManager.FirstBreath == Breath.Bulb ? "interBulb" : "interCanister";
         Objective = chapter == Chapter.Finale ? "Listen for an answer." : chapter == Chapter.Intro ?
             "Hear the Ringmaster’s terms." : "Hold him to his promise.";
+        if (chapter == Chapter.Intro)
+        {
+            dialogue.ShowOpening(cuffsShot, crestShot, FinishStage);
+            return;
+        }
         // Rebind selected shots per visit while retaining the Stage director, host cameras and signal track.
         var director = dialogue.director;
         foreach (var track in ((TimelineAsset)director.playableAsset).GetOutputTracks())
@@ -103,7 +108,6 @@ public class StoryScene : MonoBehaviour
             if (clip.asset is not CinemachineShot shot) continue;
             CinemachineCamera replacement = null;
             if (chapter != Chapter.Intermission && clip.displayName == "Low Camera") replacement = cuffsShot;
-            if (chapter == Chapter.Intro && clip.displayName == "High Camera") replacement = crestShot;
             if (clip.displayName == "Default") replacement = crowdShot;
             if (replacement) director.SetReferenceValue(shot.VirtualCamera.exposedName, replacement);
         }

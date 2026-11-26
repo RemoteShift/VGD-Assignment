@@ -1,24 +1,26 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
-// Only the current watch is armed. Decorative knights, defeated guards and future watches
-// never inflict damage or report a defeat to the story.
-[RequireComponent(typeof(CharacterController))]
+// Guards navigate the baked arena floor. The visible knight and the sword target both
+// travel on the same root, including around scenery and while recovering from a slam.
+[RequireComponent(typeof(NavMeshAgent), typeof(CapsuleCollider))]
 public class EncounterGuard : MonoBehaviour, IDamageable
 {
     public Animator animator;
     public AudioSource sound;
     public AudioClip step, impact;
-    public int hitPoints = 3;
+    public int hitPoints = 8;
     public bool captain;
     public GameObject captainPlume;
-    public float speed = 2.8f;
-    [Range(-1, 1)] public float approachSide;
+    public float speed = 4.6f;
     private StoryScene encounter;
-    private CharacterController motor;
+    private NavMeshAgent agent;
     private PlayerHealth target;
-    private Vector3 post;
-    private float cooldown, windup, fallSpeed, recoil, stride;
+    private Collider targetBody;
+    private int scenery;
+    private float cooldown, windup, recoil, stride, nextPath;
+    private Vector3 goal;
     private string pose;
     private bool dead;
 
@@ -26,68 +28,99 @@ public class EncounterGuard : MonoBehaviour, IDamageable
     {
         encounter = owner;
         target = player.GetComponent<PlayerHealth>();
-        post = transform.position;
+        targetBody = player.GetComponent<LocomotionController>().PlayerCollider;
+        scenery = LayerMask.GetMask("Default", "Ignore Light");
         captainPlume.SetActive(captain);
+        if (captain) hitPoints += 3;
         gameObject.SetActive(true);
-        motor = GetComponent<CharacterController>();
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = speed;
+        agent.updateRotation = false;
+        // Moving with the agent and applying animation displacement would move the model twice.
+        animator.applyRootMotion = false;
         Pose("Ready");
     }
 
-    private void Pose(string state)
+    private void Pose(string state, bool restart = false)
     {
-        if (pose == state) return;
+        if (pose == state && !restart) return;
         pose = state;
-        animator.CrossFadeInFixedTime(state, .10f, 0, 0f);
+        animator.speed = state == "Cut" ? (captain ? 1.3f : 1.7f) : 1f;
+        animator.CrossFadeInFixedTime(state, .08f, 0, 0);
     }
 
     private void Update()
     {
-        if (dead || !target || !encounter.PlayingArena) return;
-        if (transform.position.y < post.y - 7f)
+        if (dead || !target || !agent.isOnNavMesh) return;
+        if (!encounter.PlayingArena)
         {
-            motor.enabled = false;
-            transform.position = post;
-            motor.enabled = true;
-            fallSpeed = 0;
+            agent.isStopped = true;
+            return;
         }
-        var offset = target.transform.position - transform.position;
-        var flat = Vector3.ProjectOnPlane(offset, Vector3.up);
-        float distance = flat.magnitude;
-        Vector3 walk = Vector3.zero;
+
+        Vector3 offset = target.transform.position - transform.position;
+        Vector3 flat = Vector3.ProjectOnPlane(offset, Vector3.up);
+        bool inReach = flat.sqrMagnitude <= 2.1f * 2.1f && Mathf.Abs(offset.y) < 2.3f &&
+            !Physics.Linecast(transform.position + Vector3.up * 1.2f, targetBody.bounds.center,
+                scenery, QueryTriggerInteraction.Ignore);
         cooldown -= Time.deltaTime;
-        recoil -= Time.deltaTime;
         if (windup > 0)
         {
-            // The blade commits to its heading at windup, giving the player room to sidestep.
+            // Heading locks on commitment. Sidestepping or getting outside the arc beats the cut.
             windup -= Time.deltaTime;
-            if (windup <= 0 && distance < 2.65f && Mathf.Abs(offset.y) < 2.6f &&
-                Vector3.Dot(transform.forward, flat.normalized) > .26f)
-                target.TakeDamage(captain ? 16 : 10);
+            if (windup <= 0 && inReach && Vector3.Dot(transform.forward, flat.normalized) > .48f)
+                target.TakeDamage(captain ? 32 : 24);
+            return;
         }
-        else if (recoil <= 0)
+        recoil -= Time.deltaTime;
+        if (recoil > 0) return;
+
+        if (inReach)
         {
-            if (distance > .1f) transform.rotation = Quaternion.RotateTowards(transform.rotation,
-                Quaternion.LookRotation(flat), 380 * Time.deltaTime);
-            if (distance > 1.8f)
+            agent.isStopped = true;
+            Face(flat);
+            if (cooldown <= 0 && Vector3.Dot(transform.forward, flat.normalized) > .75f)
             {
-                var direction = flat.normalized;
-                var flank = Vector3.Cross(Vector3.up, direction) * approachSide * Mathf.Clamp01((distance - 2f) / 4);
-                walk = (direction + flank).normalized * speed;
-                Pose("Advance");
-                stride -= Time.deltaTime;
-                if (stride <= 0) { sound.PlayOneShot(step, .28f); stride = .4f; }
-            }
-            else if (cooldown <= 0)
-            {
-                Pose("Cut");
-                windup = captain ? .88f : .60f;
-                cooldown = captain ? 2.3f : 1.82f;
+                Pose("Cut", true);
+                windup = captain ? .46f : .33f;
+                cooldown = captain ? 1.32f : 1.12f;
                 sound.PlayOneShot(step, .8f);
             }
-            else if (cooldown < .8f) Pose("Ready");
+            else if (cooldown < .50f) Pose("Ready");
+            return;
         }
-        fallSpeed = motor.isGrounded ? -2 : Mathf.Max(-14, fallSpeed - 18 * Time.deltaTime);
-        motor.Move((walk + Vector3.up * fallSpeed) * Time.deltaTime);
+
+        agent.isStopped = false;
+        // Reuse the route until the target moves. Sample the floor so jump and dash
+        // inputs do not send the search to an unreachable point in the air.
+        if (Time.time >= nextPath)
+        {
+            nextPath = Time.time + .14f;
+            var bounds = targetBody.bounds;
+            Vector3 foot = new(bounds.center.x, bounds.min.y, bounds.center.z);
+            if (NavMesh.SamplePosition(foot, out var hit, 4f, agent.areaMask) &&
+                (!agent.hasPath || (goal - hit.position).sqrMagnitude > .09f))
+            {
+                goal = hit.position;
+                agent.SetDestination(goal);
+            }
+        }
+        if (agent.velocity.sqrMagnitude > .06f)
+        {
+            Face(agent.velocity);
+            Pose("Advance");
+            stride -= Time.deltaTime;
+            if (stride <= 0) { sound.PlayOneShot(step, .28f); stride = .32f; }
+        }
+        else Pose("Ready");
+    }
+
+    private void Face(Vector3 direction)
+    {
+        direction.y = 0;
+        if (direction.sqrMagnitude > .001f)
+            transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                Quaternion.LookRotation(direction), 720 * Time.deltaTime);
     }
 
     public void TakeDamage(float damage)
@@ -97,14 +130,16 @@ public class EncounterGuard : MonoBehaviour, IDamageable
         encounter.RegisterHit();
         hitPoints -= Mathf.CeilToInt(damage);
         if (hitPoints <= 0) Die();
-        else Stun();
+        // Light swings hurt without resetting the attack clock. A heavy blow buys space.
+        else if (damage >= (captain ? 5f : 3f)) Stun();
     }
 
     public void Die()
     {
         if (!encounter || dead) return;
         dead = true;
-        motor.enabled = false;
+        agent.enabled = false;
+        GetComponent<CapsuleCollider>().enabled = false;
         Pose("Fall");
         encounter.GuardFell(this);
         StartCoroutine(RemoveBody());
@@ -118,14 +153,18 @@ public class EncounterGuard : MonoBehaviour, IDamageable
 
     public void Stun()
     {
+        if (!agent || !agent.isOnNavMesh || dead) return;
+        agent.isStopped = true;
         windup = 0;
-        recoil = .28f;
-        cooldown = Mathf.Max(cooldown, .65f);
-        Pose("Recoil");
+        recoil = .22f;
+        cooldown = Mathf.Max(cooldown, .48f);
+        Pose("Recoil", true);
     }
 
     public void KnockbackFrom(Vector3 origin, float distance)
     {
-        if (motor && !dead) motor.Move(Vector3.ProjectOnPlane(transform.position - origin, Vector3.up).normalized * distance);
+        if (!agent || !agent.isOnNavMesh || dead) return;
+        var delta = Vector3.ProjectOnPlane(transform.position - origin, Vector3.up).normalized * distance;
+        agent.Move(delta);
     }
 }

@@ -17,33 +17,45 @@ MonoBehaviour:
     lines:
     - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: "You took me off Earth in irons. Before you unlock these, tell the people out there what I get if I win."
+      text: "Before you unlock these, tell them what I win."
       sound: {fileID: 0}
+      shotTime: -7
+      startsApplause: 0
+    - speaker: "Tomas"
+      portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
+      text: "That dent in the cross. Dad made it hauling the bell out of our well."
+      sound: {fileID: 0}
+      shotTime: -4.2
+      startsApplause: 0
+    - speaker: "Ringmaster"
+      portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
+      text: "Let him have the light. I'd like everyone to hear the terms."
+      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
       shotTime: 0
       startsApplause: 0
     - speaker: "Tomas"
       portrait: {fileID: 2800000, guid: da2ff7dd5f5501afaa4c09c43f2bc154, type: 3}
-      text: "That cross on the shield\u2026 Dad put that dent in it hauling our bell out of the well. Where did you get it?"
+      text: "Then say where you're sending me when this is over."
       sound: {fileID: 0}
-      shotTime: 3.15
+      shotTime: 4.5
       startsApplause: 0
     - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: "Two bouts, Tomas. Win them both and I'll put you back beside your village well. You have my word, and a full house for witnesses."
-      sound: {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
-      shotTime: 8.05
+      text: "Win two bouts, Tomas, and I'll put you back beside your village well. You have my word."
+      sound: {fileID: 0}
+      shotTime: 8
       startsApplause: 0
     - speaker: "Lead Spectator"
       portrait: {fileID: 2800000, guid: c27f35931c714e6179400ccfd79b7886, type: 3}
       text: "We heard you! Give the man his sword."
       sound: {fileID: 8300000, guid: 8921f827b228f037cb474a068f5aeee3, type: 3}
-      shotTime: 14.35
+      shotTime: 13.1
       startsApplause: 0
     - speaker: "Ringmaster"
       portrait: {fileID: 2800000, guid: 1dcc5dbf8266b46438d5e3bbc48be910, type: 3}
-      text: "Open the Garden. Put his air where the back row can see him drink it."
+      text: "Open the Garden. Put his air in the light."
       sound: {fileID: 0}
-      shotTime: 9.4
+      shotTime: 15.7
       startsApplause: 0
   - key: garden
     lines:

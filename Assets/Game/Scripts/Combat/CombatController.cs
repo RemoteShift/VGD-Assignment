@@ -232,6 +232,11 @@ public class CombatController : Singleton<CombatController>
         var cam = Cam;
         _hitThisSwing.Clear();
         _ropeHit = false;
+        // A camera touching the rope starts inside its trigger, where Unity raycasts miss.
+        // Count that contact at the start of the sword sweep, once per swing.
+        var contacts = Physics.OverlapSphereNonAlloc(cam.transform.position, .08f, _overlapHits,
+            attackLayer, QueryTriggerInteraction.Collide);
+        for (int i = 0; i < contacts; i++) TryStrikeRope(_overlapHits[i]);
 
         var halfArc = settings.arc * 0.5f;
         var previousAngle = -halfArc;
@@ -280,16 +285,19 @@ public class CombatController : Singleton<CombatController>
         for (var i = 0; i < count; i++)
         {
             var collider = _rayHits[i].collider;
-            if (!_ropeHit && collider.TryGetComponent<BellRope>(out var rope))
-            {
-                _ropeHit = true;
-                rope.Strike();
-            }
+            TryStrikeRope(collider);
             DamageOnce(collider, settings.damage, _hitThisSwing);
         }
     }
 
     #endregion
+
+    private void TryStrikeRope(Collider collider)
+    {
+        if (_ropeHit || !collider.TryGetComponent<BellRope>(out var rope)) return;
+        _ropeHit = true;
+        rope.Strike();
+    }
 
     #region Dash Strike
 

@@ -1,9 +1,10 @@
 using System;
 using UnityEngine;
+using Unity.Cinemachine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-// Stage lines wait for the player. Arena captions expire on game time and leave controls live.
+// Opening subtitles follow the reel. Later Stage visits wait for the reader, and arena captions leave controls live.
 public class DialogueManager : MonoBehaviour
 {
     public StoryBook book;
@@ -13,6 +14,10 @@ public class DialogueManager : MonoBehaviour
     private int index;
     private float age;
     private Action finished;
+    private bool opening, reelStarted;
+    private float backstageTime;
+    private CinemachineCamera cuffs, crest;
+    public bool CanAdvance => Current != null && (!opening || index + 1 < lines.Length || VisibleCount < Current.text.Length);
     public StoryBook.Line Current => lines == null ? null : lines[index];
     public bool IsConsole => finished != null;
     public string VisibleText => Current == null ? "" : Current.text.Substring(0, VisibleCount);
@@ -26,11 +31,35 @@ public class DialogueManager : MonoBehaviour
         ShowLine();
     }
 
+    // Negative cues are two backstage inserts. From zero onward the original director owns
+    // every shot and light. Reading ahead changes the subtitle, never the running Timeline.
+    public void ShowOpening(CinemachineCamera cuffsCamera, CinemachineCamera crestCamera, Action onComplete)
+    {
+        cuffs = cuffsCamera;
+        crest = crestCamera;
+        opening = true;
+        reelStarted = false;
+        backstageTime = book.Read("intro")[0].shotTime;
+        director.extrapolationMode = DirectorWrapMode.Hold;
+        Show("intro", onComplete);
+    }
+
     private void ShowLine()
     {
         age = 0;
         if (Current.sound) voice.PlayOneShot(Current.sound);
-        if (director && IsConsole)
+        if (opening)
+        {
+            cuffs.Priority = index == 0 ? 200 : 0;
+            crest.Priority = index == 1 ? 200 : 0;
+            if (!reelStarted && Current.shotTime >= 0)
+            {
+                reelStarted = true;
+                director.time = 0;
+                director.Play();
+            }
+        }
+        else if (director && IsConsole)
         {
             SeekStage(Current.shotTime);
             director.Resume();
@@ -41,6 +70,14 @@ public class DialogueManager : MonoBehaviour
     {
         if (Current == null) return;
         age += Time.deltaTime;
+        if (opening)
+        {
+            if (!reelStarted) backstageTime += Time.deltaTime;
+            double cueTime = reelStarted ? director.time : backstageTime;
+            if (index + 1 < lines.Length && cueTime >= lines[index + 1].shotTime) Next();
+            else if (reelStarted && director.time >= director.duration - .025) Complete();
+            return;
+        }
         if (!IsConsole && age >= Mathf.Max(4, Current.text.Length / 13f)) Next();
         // Hold this shot until the reader advances, even if they linger over the line.
         if (director && IsConsole && director.time >= Current.shotTime + 1.1)
@@ -65,9 +102,14 @@ public class DialogueManager : MonoBehaviour
 
     public void Advance()
     {
-        if (!IsConsole) return;
+        if (!IsConsole || !CanAdvance) return;
         if (VisibleCount < Current.text.Length) age = Current.text.Length / 52f + .01f;
-        else Next();
+        else
+        {
+            if (opening && !reelStarted && lines[index + 1].shotTime < 0)
+                backstageTime = lines[index + 1].shotTime;
+            Next();
+        }
     }
 
     private void Next()
@@ -78,13 +120,22 @@ public class DialogueManager : MonoBehaviour
 
     public void Complete()
     {
+        bool reelFinished = opening && reelStarted && director.time >= director.duration - .025;
+        if (opening)
+        {
+            cuffs.Priority = 0;
+            crest.Priority = 0;
+            // A backstage skip still needs a graph to evaluate the terminal light and camera cues.
+            if (!reelStarted) director.Play();
+            opening = false;
+        }
         var callback = finished;
         lines = null;
         finished = null;
         if (director)
         {
             // A skip and a normal finish hold the same terminal shot and the same light cues.
-            SeekStage(director.duration - .05);
+            if (!reelFinished) SeekStage(director.duration - .025);
             director.Pause();
         }
         callback?.Invoke();

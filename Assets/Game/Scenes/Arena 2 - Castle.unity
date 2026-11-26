@@ -131,13 +131,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 2.9
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: -0.48
+      propertyPath: speed
+      value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -963,13 +963,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 3.5
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: 0.5
+      propertyPath: speed
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1164,13 +1164,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 2.9
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: -0.48
+      propertyPath: speed
+      value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2769,6 +2769,70 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 487718, guid: 484d3cf124c98774f8060eabff39a104, type: 3}
   m_PrefabInstance: {fileID: 196047684}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &204391955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 204391957}
+  - component: {fileID: 204391956}
+  m_Layer: 0
+  m_Name: Castle guard navigation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &204391956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204391955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 1
+  m_Size: {x: 235, y: 55, z: 230}
+  m_Center: {x: 13, y: 3, z: 27}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 25
+  m_UseGeometry: 1
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 1
+  m_VoxelSize: 0.11
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: 14fa9da7206a99feb8c6e3dc9b73c9e9, type: 2}
+  m_BuildHeightMesh: 0
+--- !u!4 &204391957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204391955}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &215452191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8788,9 +8852,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: speed
-      value: 2.9
+      value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: captain
@@ -20050,13 +20118,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 3.5
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: 0.5
+      propertyPath: speed
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20250,13 +20318,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 2.9
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: -0.48
+      propertyPath: speed
+      value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -25878,9 +25946,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: speed
-      value: 2.9
+      value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: captain
@@ -26203,11 +26275,11 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 2
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -26471,13 +26543,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: House guard
       objectReference: {fileID: 0}
-    - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: speed
-      value: 3.5
+    - target: {fileID: 757251174846182048, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5364698536426767207, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
-      propertyPath: approachSide
-      value: 0.5
+      propertyPath: speed
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5386118779358461739, guid: 8994dfb43a1ca8554b71ab2892e8d206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -40648,6 +40720,7 @@ GameObject:
   - component: {fileID: 1380066511}
   - component: {fileID: 1380066510}
   - component: {fileID: 1380066509}
+  - component: {fileID: 1380066512}
   m_Layer: 0
   m_Name: Portcullis hoist
   m_TagString: Untagged
@@ -40753,6 +40826,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1380066507}
   m_Mesh: {fileID: 4300000, guid: aa2276c37242ab3729148c5bbecd1fae, type: 2}
+--- !u!208 &1380066512
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380066507}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1.3, y: 1.3, z: 2.25}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 0
+  m_Center: {x: 0, y: 2.65, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1381188663
 GameObject:
   m_ObjectHideFlags: 0
@@ -61418,3 +61507,4 @@ SceneRoots:
   - {fileID: 673767327}
   - {fileID: 785356449}
   - {fileID: 1945908670}
+  - {fileID: 204391957}

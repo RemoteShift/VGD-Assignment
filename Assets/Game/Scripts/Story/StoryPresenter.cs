@@ -75,7 +75,7 @@ public class StoryPresenter : MonoBehaviour
         Label(x+116,y+43,width-144,console ? 77 : 78,console ? dialogue.VisibleText : line.text,console ? 23 : 20,paper);
         if (console)
         {
-            if (Button(x+116,y+122,180,"Next   [Space]")) dialogue.Advance();
+            if (dialogue.CanAdvance && Button(x+116,y+122,180,"Next   [Space]")) dialogue.Advance();
             if (Button(x+width-171,y+122,150,"Skip   [Tab]")) dialogue.Complete();
         }
     }

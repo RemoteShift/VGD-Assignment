@@ -34,7 +34,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Advance
-  m_Speed: 0.82
+  m_Speed: 1.12
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
